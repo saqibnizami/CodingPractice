@@ -11,21 +11,21 @@ SELECT  j.company_code,
         j.scount,
         j.mcount,
         j.ecount
-FROM(
-    SELECT  c.company_code,
-            COUNT(DISTINCT(l.lead_manager_code)) lcount,
-            COUNT(DISTINCT(s.senior_manager_code)) scount,
-            COUNT(DISTINCT(m.manager_code)) mcount,
-            COUNT(DISTINCT(e.employee_code)) ecount
-    FROM    Company c, Lead_Manager l, Senior_Manager s, Manager m, Employee e
-    WHERE   c.company_code = l.company_code
-        AND l.lead_manager_code = s.lead_manager_code
-        AND s.senior_manager_code = m.senior_manager_code
-        AND m.manager_code = e.manager_code
-    GROUP BY
-            c.company_code) j
-LEFT JOIN Company c2
-ON j.company_code = c2.company_code
+FROM    (
+        SELECT  c.company_code,
+                COUNT(DISTINCT(l.lead_manager_code)) lcount,
+                COUNT(DISTINCT(s.senior_manager_code)) scount,
+                COUNT(DISTINCT(m.manager_code)) mcount,
+                COUNT(DISTINCT(e.employee_code)) ecount
+        FROM    Company c, Lead_Manager l, Senior_Manager s, Manager m, Employee e
+        WHERE   c.company_code = l.company_code
+            AND l.lead_manager_code = s.lead_manager_code
+            AND s.senior_manager_code = m.senior_manager_code
+            AND m.manager_code = e.manager_code
+        GROUP BY
+                c.company_code
+        ) j
+LEFT JOIN Company c2 ON j.company_code = c2.company_code
 ORDER BY
         j.company_code
 
@@ -36,3 +36,21 @@ Strategy
 2. Create an outer query to grab founder names by left joining company codes and counts to
     the Company table
 */
+
+/* UPDATE: ALT SOLUTION
+
+This works too. No join needed if you just group by both company code and founder
+*/
+SELECT  c.company_code,
+        c.founder,
+        COUNT(DISTINCT(l.lead_manager_code)) lcount,
+        COUNT(DISTINCT(s.senior_manager_code)) scount,
+        COUNT(DISTINCT(m.manager_code)) mcount,
+        COUNT(DISTINCT(e.employee_code)) ecount
+FROM    Company c, Lead_Manager l, Senior_Manager s, Manager m, Employee e
+WHERE   c.company_code = l.company_code
+    AND l.lead_manager_code = s.lead_manager_code
+    AND s.senior_manager_code = m.senior_manager_code
+    AND m.manager_code = e.manager_code
+GROUP BY
+        c.company_code, c.founder
